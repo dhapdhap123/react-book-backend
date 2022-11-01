@@ -6,11 +6,22 @@ const posts = new Router();
 
 posts.get('/', postsCtrl.list);
 posts.post('/', checkLoggedin, postsCtrl.write);
-
+posts.get('/:id', postsCtrl.getPostById, postsCtrl.read);
+posts.delete(
+  '/:id',
+  checkLoggedin,
+  postsCtrl.getPostById,
+  postsCtrl.checkOwnPost,
+  postsCtrl.remove,
+);
+posts.patch(
+  '/:id',
+  checkLoggedin,
+  postsCtrl.getPostById,
+  postsCtrl.checkOwnPost,
+  postsCtrl.update,
+);
 const post = new Router();
-posts.get('/', postsCtrl.read);
-posts.delete('/', checkLoggedin, postsCtrl.checkOwnPost, postsCtrl.remove);
-posts.patch('/', checkLoggedin, postsCtrl.checkOwnPost, postsCtrl.update);
-posts.use('/:id', postsCtrl.getPostById, post.routes());
+posts.use('/:id', post.routes());
 
 export default posts;

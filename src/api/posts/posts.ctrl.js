@@ -58,6 +58,11 @@ export const write = async (ctx) => {
     ctx.throw(500, e);
   }
 };
+
+/*
+  GET /api/posts?username=&tag=&page=
+*/
+
 export const list = async (ctx) => {
   const page = parseInt(ctx.query.page || '1', 10);
 
@@ -65,13 +70,19 @@ export const list = async (ctx) => {
     ctx.status = 400;
     return;
   }
+  const { tag, username } = ctx.query;
+  const query = {
+    ...(username ? { 'user.username': username } : {}),
+    ...(tag ? { tags: tag } : {}),
+  };
+
   try {
-    const posts = await Post.find()
+    const posts = await Post.find(query)
       .sort({ _id: -1 })
       .limit(10)
       .skip((page - 1) * 10)
       .exec();
-    const postCount = await Post.countDocuments().exec();
+    const postCount = await Post.countDocuments(query).exec();
     ctx.set('Last-Page', Math.ceil(postCount / 10));
     ctx.body = posts
       .map((post) => post.toJSON())
